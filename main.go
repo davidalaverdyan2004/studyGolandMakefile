@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	db "studygoland/Db"
 )
 
@@ -24,6 +26,36 @@ func main() {
 	switch newUser {
 	case "YES":
 		fmt.Println("add user")
+		fmt.Println("введите имя:")
+		reader := bufio.NewReader(os.Stdin)
+		name, err := reader.ReadString('\n')
+		name = strings.TrimSpace(name)
+		if err != nil {
+			fmt.Println("err")
+			return
+		}
+
+		var phonePtr *string // по умолчанию nil
+		fmt.Println("введите nomer:")
+		phone, err := reader.ReadString('\n')
+
+		phone = strings.TrimSpace(phone) // ← вот эта строка
+
+		if phone != "" {
+			phonePtr = &phone // указываем на строку, только если она не пустая
+		}
+
+		if err != nil {
+			fmt.Println("err")
+			return
+		}
+
+		err = db.AddUser(ctx, conn, name, phonePtr)
+		if err != nil {
+			return
+		}
+		fmt.Println("Пользователь добавлен")
+
 	case "NO":
 		fmt.Println("all table")
 		tables, err := db.GetUsers(ctx, conn)
